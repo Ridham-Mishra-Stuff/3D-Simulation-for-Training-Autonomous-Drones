@@ -1,8 +1,29 @@
-## **DRONE SIMULATION**
+##**1. Session Configuration (YAML)**
+waypoints.yaml  [ to  define a specific set of coordinates ]
+mission:
 
-###XML world.sdf
+  waypoints:
+
+    - [2.0, 2.0, 3.0]
+
+    - [5.0, 5.0, 3.0]
+
+    - [8.0, 3.0, 4.0]
+
+    - [10.0, 8.0, 2.5]
+
+  landing_zone:
+
+    x: 12.0
+
+    y: 10.0
+
+    z: 0.5
 
 
+
+## **2. Gazebo Harmonic Training Environment** 
+training_world.sdf
 <sdf version="1.8">
 
 <world name="drone_training_world">
@@ -15,9 +36,9 @@
 <uri>model://sun</uri>
 </include>
 
-<model name="building_1">
+<model name="warehouse">
 
-<pose>5 5 2 0 0 0</pose>
+<pose>6 6 2 0 0 0</pose>
 
 <link name="link">
 
@@ -45,28 +66,250 @@
 
 </model>
 
-<model name="landing_pad">
-
-<pose>15 10 0.1 0 0 0</pose>
-
-<link name="link">
-
-<visual name="visual">
-
-<geometry>
-<cylinder>
-<radius>1.0</radius>
-<length>0.2</length>
-</cylinder>
-</geometry>
-
-</visual>
-
-</link>
-
-</model>
-
 </world>
 
 </sdf>
 
+
+## **3. Waypoint Navigation Node**
+waypoint_navigator.py
+import yaml
+
+import rclpy
+
+from rclpy.node import Node
+
+from geometry_msgs.msg import PoseStamped
+
+
+class WaypointNavigator(Node):
+
+    def __init__(self):
+
+        super().__init__('waypoint_navigator')
+
+        self.publisher = self.create_publisher(
+            PoseStamped,
+            '/goal_pose',
+            10
+        )
+
+        with open(
+            'waypoints.yaml',
+            'r'
+        ) as file:
+
+            config = yaml.safe_load(file)
+
+        self.waypoints = config[
+            'mission'
+        ]['waypoints']
+
+        self.index = 0
+
+        self.timer = self.create_timer(
+            8.0,
+            self.send_waypoint
+        )
+
+    def send_waypoint(self):
+
+        x, y, z = self.waypoints[
+            self.index
+        ]
+
+        goal = PoseStamped()
+
+        goal.header.frame_id = "map"
+
+        goal.pose.position.x = x
+        goal.pose.position.y = y
+        goal.pose.position.z = z
+
+        self.publisher.publish(goal)
+
+        self.get_logger().info(
+            f"Waypoint {self.index+1}"
+        )
+
+        self.index = (
+            self.index + 1
+        ) % len(self.waypoints)
+
+
+def main():
+
+    rclpy.init()
+
+    node = WaypointNavigator()
+
+    rclpy.spin(node)
+
+    node.destroy_node()
+
+    rclpy.shutdown()
+
+
+
+4.  ##  **Session  Manager**
+session_manager.py
+import time
+
+class SessionManager:
+
+    def __init__(self):
+
+        self.start_time = time.time()
+
+        self.waypoints_reached = 0
+
+        self.collisions = 0
+
+    def waypoint_reached(self):
+
+        self.waypoints_reached += 1
+
+    def collision(self):
+
+        self.collisions += 1
+
+    def summary(self):
+
+        duration = (
+            time.time()
+            - self.start_time
+        )
+
+        return {
+
+            "duration": duration,
+
+            "waypoints": self.waypoints_reached,
+
+            "collisions": self.collisions
+        }
+
+
+
+
+## **5. SLAM Toolbox Configuration**
+
+
+slam.yaml
+slam_toolbox:
+
+  ros__parameters:
+
+    use_sim_time: true
+
+    resolution: 0.05
+
+    map_update_interval: 2.0
+
+    minimum_travel_distance: 0.5
+
+    minimum_travel_heading: 0.5
+
+
+
+## **6. Session Logger**
+
+
+session_logger.py
+import csv
+
+class SessionLogger:
+
+    def __init__(self):
+
+        self.file = open(
+            "mission_results.csv",
+            "w",
+            newline=""
+        )
+
+        self.writer = csv.writer(
+            self.file
+        )
+
+        self.writer.writerow([
+            "Session",
+            "Time",
+            "Waypoints",
+            "Collisions"
+        ])
+
+    def log(
+        self,
+        session,
+        duration,
+        waypoints,
+        collisions
+    ):
+
+        self.writer.writerow([
+            session,
+            duration,
+            waypoints,
+            collisions
+        ])
+
+
+
+
+## **7. Performance Analysis**
+
+
+metrics_report.py
+import matplotlib.pyplot as plt
+
+sessions = [1,2,3,4,5]
+
+success = [60,70,80,89,96]
+
+plt.plot(
+    missions,
+    success,
+    marker='o'
+)
+
+plt.xlabel(
+    "Mission Number"
+)
+
+plt.ylabel(
+    "Success Rate (%)"
+)
+
+plt.title(
+    "Drone Training Progress"
+)
+
+plt.grid(True)
+
+plt.savefig(
+    "training_progress.png"
+)
+
+plt.show()
+Performance Graph for the Report
+Drone mission success improvement
+
+Expected improvement across repeated simulation missions.
+
+45%
+60%
+75%
+90%
+105%
+1
+2
+3
+4
+5
+Expected Results
+Metric	Before Simulation	After Simulation
+Mission Success	60%	96%
+Collision Rate	15%	2%
+Navigation Accuracy	65%	94%
+Mapping Accuracy	68%	92%
