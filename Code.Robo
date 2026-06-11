@@ -1,0 +1,72 @@
+## **DRONE SIMULATION**
+
+###XML world.sdf
+
+
+<sdf version="1.8">
+
+<world name="drone_training_world">
+
+<include>
+<uri>model://ground_plane</uri>
+</include>
+
+<include>
+<uri>model://sun</uri>
+</include>
+
+<model name="building_1">
+
+<pose>5 5 2 0 0 0</pose>
+
+<link name="link">
+
+<collision name="collision">
+
+<geometry>
+<box>
+<size>4 4 4</size>
+</box>
+</geometry>
+
+</collision>
+
+<visual name="visual">
+
+<geometry>
+<box>
+<size>4 4 4</size>
+</box>
+</geometry>
+
+</visual>
+
+</link>
+
+</model>
+
+<model name="landing_pad">
+
+<pose>15 10 0.1 0 0 0</pose>
+
+<link name="link">
+
+<visual name="visual">
+
+<geometry>
+<cylinder>
+<radius>1.0</radius>
+<length>0.2</length>
+</cylinder>
+</geometry>
+
+</visual>
+
+</link>
+
+</model>
+
+</world>
+
+</sdf>
+
