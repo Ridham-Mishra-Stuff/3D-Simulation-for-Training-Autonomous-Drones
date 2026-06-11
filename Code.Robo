@@ -1,4 +1,6 @@
 ##**1. Session Configuration (YAML)**
+
+
 waypoints.yaml  [ to  define a specific set of coordinates ]
 mission:
 
@@ -260,56 +262,148 @@ class SessionLogger:
 ## **7. Performance Analysis**
 
 
-metrics_report.py
 import matplotlib.pyplot as plt
 
-sessions = [1,2,3,4,5]
+training_sessions = [1, 2, 3, 4, 5]
 
-success = [60,70,80,89,96]
+navigation_success = [60, 70, 80, 89, 96]
+
+collision_rate = [15, 11, 8, 4, 2]
+
+mapping_accuracy = [68, 74, 81, 88, 92]
+
+# Navigation Graph
+plt.figure(figsize=(8,5))
 
 plt.plot(
-    missions,
-    success,
-    marker='o'
+    training_sessions,
+    navigation_success,
+    marker="o",
+    linewidth=2
 )
 
-plt.xlabel(
-    "Mission Number"
-)
-
-plt.ylabel(
-    "Success Rate (%)"
-)
+plt.xlabel("Training Session")
+plt.ylabel("Success Rate (%)")
 
 plt.title(
-    "Drone Training Progress"
+    "Navigation Performance Improvement"
 )
 
 plt.grid(True)
 
 plt.savefig(
-    "training_progress.png"
+    "navigation_performance.png",
+    dpi=300,
+    bbox_inches="tight"
 )
 
-plt.show()
-Performance Graph for the Report
-Drone mission success improvement
+plt.close()
 
-Expected improvement across repeated simulation missions.
+# Collision Graph
+plt.figure(figsize=(8,5))
 
-45%
-60%
-75%
-90%
-105%
-1
-2
-3
-4
-5
-Expected Results
-Metric	Before Simulation	After Simulation
-Mission Success	60%	96%
-Collision Rate	15%	2%
-Navigation Accuracy	65%	94%
-Mapping Accuracy	68%	92%
+plt.plot(
+    training_sessions,
+    collision_rate,
+    marker="o",
+    linewidth=2
+)
+
+plt.xlabel("Training Session")
+plt.ylabel("Collision Rate (%)")
+
+plt.title(
+    "Collision Reduction Through Simulation"
+)
+
+plt.grid(True)
+
+plt.savefig(
+    "collision_reduction.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.close()
+
+# Mapping Accuracy Graph
+plt.figure(figsize=(8,5))
+
+plt.plot(
+    training_sessions,
+    mapping_accuracy,
+    marker="o",
+    linewidth=2
+)
+
+plt.xlabel("Training Session")
+plt.ylabel("Mapping Accuracy (%)")
+
+plt.title(
+    "Mapping Accuracy Improvement"
+)
+
+plt.grid(True)
+
+plt.savefig(
+    "mapping_accuracy.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+metrics = [
+    "Navigation",
+    "Mapping",
+    "Safety"
+]
+
+before = [
+    60,
+    68,
+    85
+]
+
+after = [
+    96,
+    92,
+    98
+]
+
+x = range(len(metrics))
+
+plt.figure(figsize=(8,5))
+
+plt.bar(
+    [i-0.2 for i in x],
+    before,
+    width=0.4,
+    label="Before Simulation"
+)
+
+plt.bar(
+    [i+0.2 for i in x],
+    after,
+    width=0.4,
+    label="After Simulation"
+)
+
+plt.xticks(x, metrics)
+
+plt.ylabel("Performance (%)")
+
+plt.title(
+    "Impact of Simulation-Based Training"
+)
+
+plt.legend()
+
+plt.savefig(
+    "overall_improvement.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+
+plt.close()
+
+print("Graphs Generated")
